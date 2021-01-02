@@ -1,0 +1,118 @@
+﻿@model PaginatedList<videoSitecore2.Models.Videoview>
+
+
+@{
+    ViewData["Title"] = "Index";
+    // IEnumerable<Videoview> firstBook = Model.ToList().GroupBy(d => d.Id);
+}
+
+
+<form class="form-inline mr-auto" asp-controller="Videos" asp-action="Index" method="get">
+    <div class="row">
+
+        <div class="form-group" style="outline-color: #dc3545; margin-bottom:15px;">
+            <div class="col">
+                <input class="form-control" style="outline-color: #dc3545; border-color: #dc3545;" value="@ViewData["SearchString"]" type="text" name="SearchString" placeholder="جستجو" aria-label="جستجو">
+            </div> <div class="col">
+
+                <select class="form-control" style="border-color: #dc3545; " id="metaDataType" name="metaDataType" asp-items="@ViewBag.ListofMetaDataType">
+                </select>
+            </div>
+            <div class="col">
+                <input class="btn btn-danger" type="submit" value="جستجو" />
+            </div>
+
+
+        </div>
+        </div>
+       
+
+
+
+</form>
+
+
+<div class="list-group">
+
+
+
+    @foreach (var item in Model)
+    {
+    <div class="list-group-item list-group-item-action flex-column align-items-start">
+
+        <div class="d-flex w-100 justify-content-between">
+            <h3 class="text-muted"> @Html.DisplayFor(model => item.Name)</h3>
+
+            <small> <a asp-action="player" asp-route-id="@item.Id"><img src="~/images/icon.png" alt="نمایش ویدئو"></a></small>
+        </div>
+
+        <small class="text-muted">
+            @Html.DisplayFor(model => item.Description)
+        </small>
+        <!--  <p class="mb-1"> @Html.DisplayFor(model => item.Title)</p> -->
+        <!-- <a asp-action="getMetaTypeforVideo" asp-route-id="@item.Id">عناوین</a> -->
+
+        <p class="mb-1-@item.Id-@item.Id">
+
+            <script>
+
+                         $(function () {
+                          $.ajax({
+                           url: '@Url.Action("getTitleList", "Videos")',
+                           type: 'GET',
+                           dataType: 'json',
+                              data: { Id:  @item.Id },
+                           cache: false,
+                              success: function (js) {
+                             //  alert( @item.Id);
+                                  TypeList=js.typeList
+                                  TitleList=js.titleList
+                                  console.log(TypeList,TitleList);
+                                  for (var j = 0; j < TypeList.length; j++) {
+                                      title = TypeList[j].title;
+                                      $('.mb-1-@item.Id-@item.Id').append( '</br><b>' +title + ':  </b>');
+
+                                      for (var i = 0; i < TitleList[j].length; i++) {
+                                           title = TitleList[j][i];
+
+                                          $('.mb-1-@item.Id-@item.Id').append(title + ', ');
+
+                                      }
+                                   }
+                           }
+                       });
+                    });
+
+            </script>
+        </p>
+
+    </div>
+
+                }
+            </div>
+
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex - 1)"
+               asp-route-SearchString="@ViewData["SearchString"]"
+               asp-route-metaDataType="@ViewData["metaDataType"]"
+               class="btn btn-outline-danger btn-rounded btn-sm my-0 waves-effect @prevDisabled">
+                قبلی
+            </a>
+
+
+            <a asp-action="Index"
+               asp-route-pageNumber="@(Model.PageIndex + 1)"
+               asp-route-SearchString="@ViewData["SearchString"]"
+               asp-route-metaDataType="@ViewData["metaDataType"]"
+               class="btn btn-outline-danger btn-rounded btn-sm my-0 waves-effect  @nextDisabled">
+                بعدی
+            </a>
+
+
+
